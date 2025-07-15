@@ -1,9 +1,20 @@
+// waitingPeriod variable determines the time that the traffic lights wait to let the pedestrians through.
+int waitingPeriod = 30000; // milliseconds
+
+// croasingRoadBuzz variable determines the duty cycle of the buzzer when the pedestrian can cross the road.
+int crossingRoadBuzz = 127; // milliseconds
+
+// buzzerWaitingPassedTime variable determines the time between each beep when the pedestrian is waiting to cross.
+int buzzerWaitingPassedTime = 25; // milliseconds
+
+// buzzerWaitingBuzz variable determines the duty cycle of the buzzer when the pedestrian is waiting to cross.
+int buzzerWaitingBuzz = 40; // milliseconds
+
 // The pedestrian variable is used to know if there is a person wishing to cross the road.
 bool pedestrian = false;
 
 // The startTime variable is used to measure how much time has passed.
 long startTime;
-int waitingPeriod = 30000;
 
 // buzzerStartTime variable is used to determine when the last time the buzzer was on.
 long buzzerStartTime;
@@ -62,8 +73,8 @@ void stop(){
   yellow();
   delay(1000);
   red();
-  analogWrite(BUZZER1, 127); 
-  analogWrite(BUZZER2, 127); 
+  analogWrite(BUZZER1, crossingRoadBuzz); 
+  analogWrite(BUZZER2, crossingRoadBuzz); 
   delay(5000);
   analogWrite(BUZZER1, 0); 
   analogWrite(BUZZER2, 0); 
@@ -107,31 +118,40 @@ void red(){
 void loop() {
   long currentTime = millis();
   long passedTime = currentTime - startTime;
+  
   if ((passedTime >= waitingPeriod)){
     if (pedestrian){
     stop();
+    
     }
+    
     startTime = millis();
+    
   }
+  
   if (pedestrian){
     buzzerPassedTime = currentTime - buzzerStartTime;
-    if (buzzerPassedTime >= 25){
+    
+    if (buzzerPassedTime >= buzzerWaitingPassedTime){
+      
     if (buzzerPower){
-      analogWrite(BUZZER1, 40);
-      analogWrite(BUZZER2, 40);
+      analogWrite(BUZZER1, buzzerWaitingBuzz);
+      analogWrite(BUZZER2, buzzerWaitingBuzz);
       buzzerPower = false;
-    }else{
+      
+    } else{
       analogWrite(BUZZER1, 0);
       analogWrite(BUZZER2, 0);
       buzzerPower = true;
+      
     }
+    
     buzzerStartTime = millis();
+    
     }
+    
   }
-  
-  
-  
-  
+   
   if (((digitalRead(BUTTON1) == LOW) | (digitalRead(BUTTON2) == LOW)) & (!pedestrian)){
     pedestrian = true;
     buzzerStartTime = millis();
@@ -139,7 +159,5 @@ void loop() {
     Serial.println("Button Pressed");
     
   }
-
-  
   
 }
